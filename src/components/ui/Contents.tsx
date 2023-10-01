@@ -2,6 +2,7 @@
 
 import { Layout } from "antd";
 import BreadCrumb from "./BreadCrumb";
+import Header from "./Header";
 const { Content } = Layout;
 const Contents = ({ children }: { children: React.ReactNode }) => {
   const base = "admin";
@@ -13,6 +14,7 @@ const Contents = ({ children }: { children: React.ReactNode }) => {
         color: "black",
       }}
     >
+      <Header />
       <BreadCrumb
         items={[
           {
