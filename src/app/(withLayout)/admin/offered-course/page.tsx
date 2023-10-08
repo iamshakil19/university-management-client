@@ -3,24 +3,23 @@ import {
   DeleteOutlined,
   EditOutlined,
   ReloadOutlined,
-  PlayCircleOutlined,
 } from "@ant-design/icons";
 import UMTable from "@/components/ui/UMTable";
 
-import { Button, Input, Tooltip, message } from "antd";
+import { Button, Input, message } from "antd";
 import Link from "next/link";
 import { useState } from "react";
 import ActionBar from "@/components/ui/ActionBar";
 import { useDebounced } from "@/redux/hooks";
 import dayjs from "dayjs";
+
 import {
-  useDeleteSemesterRegistrationsMutation,
-  useSemesterRegistrationsQuery,
-  useStartNewSemesterMutation,
-} from "@/redux/api/semesterRegistrationApi";
+  useDeleteOfferedCourseMutation,
+  useOfferedCoursesQuery,
+} from "@/redux/api/offeredCourseApi";
 import BreadCrumb from "@/components/ui/BreadCrumb";
 
-const SemesterRegistrationPage = () => {
+const OfferedCoursePage = () => {
   const query: Record<string, any> = {};
 
   const [page, setPage] = useState<number>(1);
@@ -28,10 +27,7 @@ const SemesterRegistrationPage = () => {
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [deleteSemesterRegistrations] =
-    useDeleteSemesterRegistrationsMutation();
-
-  const [startNewSemester] = useStartNewSemesterMutation();
+  const [deleteOfferedCourse] = useDeleteOfferedCourseMutation();
 
   query["limit"] = size;
   query["page"] = page;
@@ -47,28 +43,18 @@ const SemesterRegistrationPage = () => {
   if (!!debouncedTerm) {
     query["searchTerm"] = debouncedTerm;
   }
-  const { data, isLoading } = useSemesterRegistrationsQuery({ ...query });
+  const { data, isLoading } = useOfferedCoursesQuery({ ...query });
 
-  const semesterRegistrations = data?.semesterRegistrations;
+  const offeredCourses = data?.offeredCourses;
   const meta = data?.meta;
-  // console.log(semesterRegistrations);
-
-  const handleStartSemester = async (id: string) => {
-    try {
-      const res = await startNewSemester(id).unwrap();
-      message.success(res);
-    } catch (err: any) {
-      message.error(err?.message);
-    }
-  };
 
   const deleteHandler = async (id: string) => {
     message.loading("Deleting.....");
     try {
       //   console.log(data);
-      const res = await deleteSemesterRegistrations(id);
+      const res = await deleteOfferedCourse(id);
       if (res) {
-        message.success("Semester Registration Deleted successfully");
+        message.success("Offered Course Deleted successfully");
       }
     } catch (err: any) {
       //   console.error(err.message);
@@ -78,29 +64,16 @@ const SemesterRegistrationPage = () => {
 
   const columns = [
     {
-      title: "Start Date",
-      dataIndex: "startDate",
+      title: "Course",
+      dataIndex: "course",
+      sorter: true,
       render: function (data: any) {
-        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
+        return <>{data?.title}</>;
       },
-      sorter: true,
     },
     {
-      title: "End Date",
-      dataIndex: "endDate",
-      render: function (data: any) {
-        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
-      },
-      sorter: true,
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      sorter: true,
-    },
-    {
-      title: "Academic semester",
-      dataIndex: "academicSemester",
+      title: "Academic department",
+      dataIndex: "academicDepartment",
       sorter: true,
       render: function (data: any) {
         return <>{data?.title}</>;
@@ -119,29 +92,17 @@ const SemesterRegistrationPage = () => {
       render: function (data: any) {
         return (
           <>
-            <Link href={`/admin/semester-registration/edit/${data?.id}`}>
+            <Link href={`/admin/offered-course/edit/${data?.id}`}>
               <Button
                 style={{
                   margin: "0px 5px",
                 }}
+                onClick={() => console.log(data)}
                 type="primary"
               >
                 <EditOutlined />
               </Button>
             </Link>
-            {data?.status === "ENDED" && (
-              <Tooltip title="Start Semester" placement="bottom">
-                <Button
-                  type="primary"
-                  onClick={() => handleStartSemester(data?.id)}
-                  style={{
-                    margin: "0px 5px",
-                  }}
-                >
-                  <PlayCircleOutlined />
-                </Button>
-              </Tooltip>
-            )}
             <Button
               onClick={() => deleteHandler(data?.id)}
               type="primary"
@@ -184,7 +145,7 @@ const SemesterRegistrationPage = () => {
         ]}
       />
 
-      <ActionBar title="Semester Registration List">
+      <ActionBar title="Offered Course List">
         <Input
           type="text"
           size="large"
@@ -197,7 +158,7 @@ const SemesterRegistrationPage = () => {
           }}
         />
         <div>
-          <Link href="/admin/semester-registration/create">
+          <Link href="/admin/offered-course/create">
             <Button type="primary">Create</Button>
           </Link>
           {(!!sortBy || !!sortOrder || !!searchTerm) && (
@@ -215,7 +176,7 @@ const SemesterRegistrationPage = () => {
       <UMTable
         loading={isLoading}
         columns={columns}
-        dataSource={semesterRegistrations}
+        dataSource={offeredCourses}
         pageSize={size}
         totalPages={meta?.total}
         showSizeChanger={true}
@@ -227,4 +188,4 @@ const SemesterRegistrationPage = () => {
   );
 };
 
-export default SemesterRegistrationPage;
+export default OfferedCoursePage;

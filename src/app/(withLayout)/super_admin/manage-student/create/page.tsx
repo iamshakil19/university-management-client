@@ -1,5 +1,5 @@
 "use client";
-import StepperForm from "@/components/SepperForm/StepperForm";
+import StepperForm from "@/components/StepperForm/StepperForm";
 import GuardianInfo from "@/components/StudentForms/GuardianInfo";
 import LocalGuardianInfo from "@/components/StudentForms/LocalGuardianInfo";
 import StudentBasicInfo from "@/components/StudentForms/StudentBasicInfo";
@@ -37,7 +37,10 @@ const CreateStudent = () => {
     <div>
       <h1>Create Student</h1>
 
-      <StepperForm steps={steps} submitHandler={(value) => handleStudentSubmit(value)} />
+      <StepperForm
+        steps={steps}
+        submitHandler={(value) => handleStudentSubmit(value)}
+      />
     </div>
   );
 };
