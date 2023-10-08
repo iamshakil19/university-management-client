@@ -25,9 +25,9 @@ export const axiosBaseQuery =
         method,
         data,
         params,
-        headers: { contentType: contentType || "application/json" },
+        headers: { "Content-Type": contentType || "application/json" },
       });
-      return { data: result.data };
+      return result;
     } catch (axiosError) {
       let err = axiosError as AxiosError;
       return {

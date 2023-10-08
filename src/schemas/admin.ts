@@ -13,3 +13,7 @@ export const adminSchema = yup.object().shape({
     dateOfBirth: yup.string().required("Date of birth is required"),
   }),
 });
+
+export const departmentSchema = yup.object().shape({
+  title: yup.string().required("Department is required"),
+});

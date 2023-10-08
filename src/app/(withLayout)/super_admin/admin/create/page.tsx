@@ -8,18 +8,55 @@ import FormTextArea from "@/components/Forms/FormTextArea";
 import ActionBar from "@/components/ui/ActionBar";
 import BreadCrumb from "@/components/ui/BreadCrumb";
 import UploadImage from "@/components/ui/UploadImage";
-import { bloodGroupOptions, departmentOptions, genderOptions } from "@/constants/global";
+import { bloodGroupOptions, genderOptions } from "@/constants/global";
+import { useAddAdminWithFormDataMutation } from "@/redux/api/adminApi";
+import { useGetDepartmentsQuery } from "@/redux/api/departmentApi";
 import { adminSchema } from "@/schemas/admin";
+import { IDepartment } from "@/types";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Col, Row } from "antd";
+import { Button, Col, Row, message } from "antd";
 import React from "react";
 
 const AdminCreate = () => {
-  const onSubmit = async (data: any) => {
+  const { data, isLoading } = useGetDepartmentsQuery({ limit: 100, page: 1 });
+  const [addAdminWithFormData] = useAddAdminWithFormDataMutation();
+
+  //@ts-ignore
+  const departments: IDepartment[] = data?.departments;
+
+  const departmentOptions =
+    departments &&
+    departments?.map((department) => {
+      return {
+        label: department?.title,
+        value: department?.id,
+      };
+    });
+
+  const onSubmit = async (values: any) => {
+    const obj = { ...values };
+    const file = obj["file"];
+    delete obj["file"];
+    const data = JSON.stringify(obj);
+    const formData = new FormData();
+    formData.append("file", file as Blob);
+    formData.append("data", data);
+
+    message.loading({
+      key: "createDepartment",
+      content: "Creating...",
+    });
     try {
-      console.log(data);
-    } catch (error) {
-      console.error(error);
+      await addAdminWithFormData(formData);
+      message.success({
+        key: "createDepartment",
+        content: "Successfully created",
+      });
+    } catch (error: any) {
+      message.error({
+        key: "createDepartment",
+        content: error.message,
+      });
     }
   };
 
@@ -132,7 +169,7 @@ const AdminCreate = () => {
                 span={8}
                 style={{ marginBottom: "10px" }}
               >
-                <UploadImage />
+                <UploadImage name="file" />
               </Col>
             </Row>
           </div>
